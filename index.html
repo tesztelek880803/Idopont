@@ -5,20 +5,121 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>IT Szerviz - Időpontfoglalás</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #0f172a; color: #f8fafc; display: flex; justify-content: center; padding: 40px 20px; margin: 0; }
-        .container { background: #1e293b; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); max-width: 550px; width: 100%; border-top: 4px solid #38bdf8; }
-        h1 { text-align: center; color: #38bdf8; margin-bottom: 30px; }
-        .form-group { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 8px; font-weight: bold; color: #94a3b8; }
-        select, input[type="text"] { width: 100%; padding: 12px; border: 1px solid #334155; border-radius: 6px; background: #0f172a; color: #fff; outline: none; box-sizing: border-box; }
-        select:focus, input:focus { border-color: #38bdf8; }
-        .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
-        .slot { background: #334155; border: 1px solid #475569; padding: 10px; text-align: center; border-radius: 6px; cursor: pointer; transition: all 0.3s ease; color: #e2e8f0; font-size: 14px; }
-        .slot:hover, .slot.selected { background: #38bdf8; color: #0f172a; font-weight: bold; border-color: #38bdf8; transform: translateY(-2px); }
-        button.submit-btn { width: 100%; padding: 14px; background: #38bdf8; color: #0f172a; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        button.submit-btn:hover { background: #0ea5e9; }
-        button.submit-btn:disabled { background: #64748b; cursor: not-allowed; }
-        #message { margin-top: 20px; text-align: center; font-weight: bold; padding: 10px; border-radius: 6px; }
+        /* Teljesen középre zárt, átmenetes háttér */
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: #f8fafc; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; /* Függőleges középre igazítás */
+            min-height: 100vh; /* Teljes képernyőmagasság */
+            margin: 0;
+            padding: 20px; 
+            box-sizing: border-box;
+        }
+        
+        /* Lebegő, dizájnos fődoboz */
+        .container { 
+            background: #1e293b; 
+            padding: 40px; 
+            border-radius: 16px; 
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5), 0 0 30px rgba(56, 189, 248, 0.15); 
+            max-width: 550px; 
+            width: 100%; 
+            border-top: 5px solid #38bdf8; 
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            border-left: 1px solid rgba(255,255,255,0.05);
+            border-right: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        h1 { 
+            text-align: center; 
+            color: #38bdf8; 
+            margin-bottom: 35px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+        
+        .form-group { margin-bottom: 25px; }
+        label { display: block; margin-bottom: 10px; font-weight: bold; color: #94a3b8; font-size: 14px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Bemeneti mezők effektekkel */
+        select, input[type="text"] { 
+            width: 100%; 
+            padding: 14px; 
+            border: 1px solid #334155; 
+            border-radius: 8px; 
+            background: #0f172a; 
+            color: #fff; 
+            outline: none; 
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+            font-size: 15px;
+        }
+        select:focus, input:focus { 
+            border-color: #38bdf8; 
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+            background: #152238;
+        }
+        
+        /* Időpont gombok */
+        .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 15px; }
+        .slot { 
+            background: #334155; 
+            border: 1px solid #475569; 
+            padding: 12px 10px; 
+            text-align: center; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            color: #e2e8f0; 
+            font-size: 15px;
+            font-weight: 500;
+        }
+        .slot:hover {
+            background: #475569;
+        }
+        .slot.selected { 
+            background: #38bdf8; 
+            color: #0f172a; 
+            font-weight: bold; 
+            border-color: #38bdf8; 
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
+        }
+        
+        /* Elválasztó vonal */
+        .or-divider { text-align: center; margin: 30px 0; color: #64748b; font-weight: bold; position: relative; font-size: 13px; text-transform: uppercase; letter-spacing: 1px;}
+        .or-divider::before, .or-divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #334155; }
+        .or-divider::before { left: 0; }
+        .or-divider::after { right: 0; }
+        
+        /* Küldés gomb */
+        button.submit-btn { 
+            width: 100%; 
+            padding: 16px; 
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
+            color: #0f172a; 
+            border: none; 
+            border-radius: 8px; 
+            font-size: 17px; 
+            font-weight: 800; 
+            cursor: pointer; 
+            transition: all 0.3s ease; 
+            margin-top: 25px; 
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        button.submit-btn:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px rgba(14, 165, 233, 0.4);
+        }
+        button.submit-btn:disabled { background: #64748b; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8;}
+        
+        /* Üzenet sáv */
+        #message { margin-top: 20px; text-align: center; font-weight: bold; padding: 12px; border-radius: 8px; transition: all 0.3s ease;}
     </style>
     
     <!-- EMAILJS BEIMPORTÁLÁSA -->
@@ -42,9 +143,29 @@
             </select>
         </div>
         
-        <div class="form-group" id="time-container" style="display: none;">
-            <label>Válassz időpontot (06:00 - 18:00):</label>
-            <div class="slots" id="slots"></div>
+        <div id="dynamic-time-section" style="display: none;">
+            <div class="form-group">
+                <label>Válassz kezdési időpontot (06:00 - 18:00):</label>
+                <div class="slots" id="slots"></div>
+                
+                <label style="margin-top: 20px;" for="duration">Időtartam (minimum 30 perc):</label>
+                <select id="duration">
+                    <option value="30 perc">30 perc</option>
+                    <option value="1 óra">1 óra</option>
+                    <option value="1.5 óra">1.5 óra</option>
+                    <option value="2 óra">2 óra</option>
+                    <option value="3 óra">3 óra</option>
+                    <option value="4 óra">4 óra</option>
+                    <option value="Egész nap">Egész nap</option>
+                </select>
+            </div>
+
+            <div class="or-divider">VAGY</div>
+
+            <div class="form-group">
+                <label for="custom-time">Egyedi időintervallum (kézzel megadva):</label>
+                <input type="text" id="custom-time" placeholder="Pl.: 08:15 - 10:45 vagy 'Csak délután'">
+            </div>
         </div>
 
         <div class="form-group">
@@ -66,7 +187,8 @@
 
         const dateSelect = document.getElementById('date-select');
         const slotsContainer = document.getElementById('slots');
-        const timeContainer = document.getElementById('time-container');
+        const timeSection = document.getElementById('dynamic-time-section');
+        const customTimeInput = document.getElementById('custom-time');
         let selectedTime = null;
 
         function isWorkDay(dateString) {
@@ -113,59 +235,78 @@
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
             element.classList.add('selected');
             selectedTime = time;
+            customTimeInput.value = '';
         }
+
+        customTimeInput.addEventListener('input', () => {
+            if(customTimeInput.value.trim() !== '') {
+                document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+                selectedTime = null;
+            }
+        });
 
         dateSelect.addEventListener('change', (e) => {
             if (e.target.value) {
-                timeContainer.style.display = 'block';
+                timeSection.style.display = 'block';
                 generateSlots();
                 selectedTime = null;
+                customTimeInput.value = '';
             } else {
-                timeContainer.style.display = 'none';
+                timeSection.style.display = 'none';
                 selectedTime = null;
+                customTimeInput.value = '';
             }
         });
 
         document.getElementById('book-btn').addEventListener('click', () => {
             const name = document.getElementById('name').value;
             const date = dateSelect.value;
+            const duration = document.getElementById('duration').value;
+            const customTime = customTimeInput.value.trim();
             const msg = document.getElementById('message');
             const btn = document.getElementById('book-btn');
 
-            if (!date || !name || !selectedTime) {
+            let finalTimeStr = "";
+            if (customTime !== "") {
+                finalTimeStr = customTime + " (Kézzel megadva)";
+            } else if (selectedTime) {
+                finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
+            }
+
+            if (!date || !name || finalTimeStr === "") {
                 msg.textContent = "Kérlek válassz dátumot, időpontot és add meg a neved!";
                 msg.style.color = "#ef4444";
                 return;
             }
 
             btn.disabled = true;
-            btn.textContent = "Küldés folyamatban...";
+            btn.textContent = "KÜLDÉS FOLYAMATBAN...";
             msg.textContent = "";
 
             const templateParams = {
                 name: name,
                 date: date,
-                time: selectedTime
+                time: finalTimeStr
             };
 
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
                 .then(function(response) {
-                    msg.textContent = `Sikeres foglalás rögzítve: ${name} részére (${date} - ${selectedTime})`;
+                    msg.textContent = `Sikeres foglalás rögzítve: ${name} részére.`;
                     msg.style.color = "#0f172a";
                     msg.style.backgroundColor = "#22c55e";
                     
                     document.getElementById('name').value = '';
                     dateSelect.value = '';
-                    timeContainer.style.display = 'none';
+                    timeSection.style.display = 'none';
                     selectedTime = null;
+                    customTimeInput.value = '';
                     btn.disabled = false;
-                    btn.textContent = "Időpont Lefoglalása";
+                    btn.textContent = "IDŐPONT LEFOGLALÁSA";
                 }, function(error) {
                     msg.textContent = "Hiba történt a küldés során. Próbáld újra!";
                     msg.style.color = "#ef4444";
                     btn.disabled = false;
-                    btn.textContent = "Időpont Lefoglalása";
-                    console.log('FAILED...', error);
+                    btn.textContent = "IDŐPONT LEFOGLALÁSA";
                 });
         });
 
