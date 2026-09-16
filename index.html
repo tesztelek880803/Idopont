@@ -32,6 +32,12 @@
             box-sizing: border-box;
         }
         
+        /* BEÚSZÓ ANIMÁCIÓ A FŐDOBOZNAK */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         /* Lebegő, tejüveg effektű fődoboz */
         .container { 
             background: rgba(30, 41, 59, 0.7); 
@@ -46,7 +52,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
             border-left: 1px solid rgba(255,255,255,0.05);
             border-right: 1px solid rgba(255,255,255,0.05);
-            transition: transform 0.1s ease;
+            animation: fadeInUp 0.7s ease-out forwards; /* Animáció aktiválása */
         }
         
         /* Hiba esetén rázkódó animáció */
@@ -81,15 +87,15 @@
             transform: translateY(-50%);
             color: #38bdf8;
             font-size: 16px;
-            pointer-events: none; /* Ne zavarjon a kattintásban */
+            pointer-events: none; 
             transition: color 0.3s ease;
         }
         
-        /* Bemeneti mezők effektekkel (extra bal oldali paddinggal az ikon miatt) */
+        /* Bemeneti mezők effektekkel */
         select, input[type="text"] { 
             font-family: 'Poppins', sans-serif;
             width: 100%; 
-            padding: 14px 14px 14px 45px; /* A 45px helyet csinál az ikonnak */
+            padding: 14px 14px 14px 45px; 
             border: 1px solid #334155; 
             border-radius: 8px; 
             background: rgba(15, 23, 42, 0.8); 
@@ -98,10 +104,9 @@
             box-sizing: border-box;
             transition: all 0.3s ease;
             font-size: 15px;
-            appearance: none; /* Mobilos böngésző stílusok resetelése a selectnél */
+            appearance: none; 
         }
         
-        /* Select ikon nyilak mobilon is (mivel az appearance-t eltüntettük) */
         select {
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
@@ -114,8 +119,17 @@
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
             background: rgba(21, 34, 56, 0.9);
         }
-        select:focus + i, input:focus + i { color: #fff; } /* Az ikon világosabb lesz, ha belekattint */
+        select:focus + i, input:focus + i { color: #fff; } 
         
+        /* HARMONIKA ANIMÁCIÓ AZ IDŐPONTOKNAK */
+        @keyframes slideDownFade {
+            from { opacity: 0; transform: translateY(-15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .slide-down-anim {
+            animation: slideDownFade 0.4s ease-out forwards;
+        }
+
         /* Időpont gombok */
         .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .slot { 
@@ -169,7 +183,7 @@
             box-shadow: 0 15px 25px rgba(14, 165, 233, 0.4);
         }
         button.submit-btn:active {
-            transform: scale(0.97); /* Kattanás effektus */
+            transform: scale(0.97); 
             box-shadow: 0 5px 10px rgba(14, 165, 233, 0.3);
         }
         button.submit-btn:disabled { background: #64748b; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8;}
@@ -177,11 +191,11 @@
         /* Üzenet sáv */
         #message { margin-top: 20px; text-align: center; font-weight: 600; padding: 12px; border-radius: 8px; transition: all 0.3s ease;}
 
-        /* Mobilos reszponzivitás (600px alatt) */
+        /* Mobilos reszponzivitás */
         @media (max-width: 600px) {
             .container { padding: 30px 20px; }
-            .slots { grid-template-columns: repeat(2, 1fr); } /* 4 helyett 2 oszlop telefonon */
-            .slot { padding: 15px 5px; font-size: 15px; } /* Nagyobb érintési felület */
+            .slots { grid-template-columns: repeat(2, 1fr); } 
+            .slot { padding: 15px 5px; font-size: 15px; } 
         }
     </style>
     
@@ -324,6 +338,11 @@
         dateSelect.addEventListener('change', (e) => {
             if (e.target.value) {
                 timeSection.style.display = 'block';
+                // Animáció újraindítása
+                timeSection.classList.remove('slide-down-anim');
+                void timeSection.offsetWidth;
+                timeSection.classList.add('slide-down-anim');
+                
                 generateSlots();
                 selectedTime = null;
                 customTimeInput.value = '';
@@ -349,15 +368,13 @@
                 finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
             }
 
-            // Ha hiányzik valami, jöhet a rázkódás!
             if (!date || !name || finalTimeStr === "") {
                 msg.textContent = "Kérlek tölts ki minden mezőt a foglaláshoz!";
                 msg.style.color = "#ef4444";
                 msg.style.backgroundColor = "transparent";
                 
-                // Rázkódás animáció indítása
                 container.classList.remove('error-shake');
-                void container.offsetWidth; // trükk az animáció újraindításához
+                void container.offsetWidth;
                 container.classList.add('error-shake');
                 
                 return;
