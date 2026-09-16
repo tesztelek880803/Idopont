@@ -11,8 +11,15 @@
     <!-- FontAwesome Ikonok -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Flatpickr (Naptár) CSS - Sötét téma -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" type="text/css" href="https://npmcdn.com/flatpickr/dist/themes/dark.css">
+
+    <!-- SweetAlert2 (Popup) CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
     <style>
-        /* Modern IT háttérkép sötétítő réteggel és Poppins betűtípussal */
+        /* Modern IT háttérkép sötétítő réteggel */
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: #0f172a;
@@ -32,7 +39,7 @@
             box-sizing: border-box;
         }
         
-        /* BEÚSZÓ ANIMÁCIÓ A FŐDOBOZNAK */
+        /* BEÚSZÓ ANIMÁCIÓ */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
@@ -52,7 +59,7 @@
             border-bottom: 1px solid rgba(255,255,255,0.05);
             border-left: 1px solid rgba(255,255,255,0.05);
             border-right: 1px solid rgba(255,255,255,0.05);
-            animation: fadeInUp 0.7s ease-out forwards; /* Animáció aktiválása */
+            animation: fadeInUp 0.7s ease-out forwards; 
         }
         
         /* Hiba esetén rázkódó animáció */
@@ -61,9 +68,7 @@
             20%, 60% { transform: translateX(-5px); }
             40%, 80% { transform: translateX(5px); }
         }
-        .error-shake {
-            animation: shake 0.4s ease-in-out;
-        }
+        .error-shake { animation: shake 0.4s ease-in-out; }
 
         h1 { 
             text-align: center; 
@@ -105,6 +110,7 @@
             transition: all 0.3s ease;
             font-size: 15px;
             appearance: none; 
+            cursor: pointer;
         }
         
         select {
@@ -121,14 +127,12 @@
         }
         select:focus + i, input:focus + i { color: #fff; } 
         
-        /* HARMONIKA ANIMÁCIÓ AZ IDŐPONTOKNAK */
+        /* HARMONIKA ANIMÁCIÓ */
         @keyframes slideDownFade {
             from { opacity: 0; transform: translateY(-15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        .slide-down-anim {
-            animation: slideDownFade 0.4s ease-out forwards;
-        }
+        .slide-down-anim { animation: slideDownFade 0.4s ease-out forwards; }
 
         /* Időpont gombok */
         .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
@@ -173,10 +177,14 @@
             font-weight: 800; 
             cursor: pointer; 
             transition: all 0.2s ease; 
-            margin-top: 25px; 
+            margin-top: 15px; 
             box-shadow: 0 10px 20px rgba(14, 165, 233, 0.3);
             text-transform: uppercase;
             letter-spacing: 1px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
         }
         button.submit-btn:hover { 
             transform: translateY(-2px);
@@ -188,9 +196,6 @@
         }
         button.submit-btn:disabled { background: #64748b; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8;}
         
-        /* Üzenet sáv */
-        #message { margin-top: 20px; text-align: center; font-weight: 600; padding: 12px; border-radius: 8px; transition: all 0.3s ease;}
-
         /* Mobilos reszponzivitás */
         @media (max-width: 600px) {
             .container { padding: 30px 20px; }
@@ -199,8 +204,12 @@
         }
     </style>
     
-    <!-- EMAILJS BEIMPORTÁLÁSA -->
+    <!-- EMAILJS, FLATPICKR ÉS SWEETALERT2 SCRIPT BEIMPORTÁLÁSA -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <script type="text/javascript">
         (function(){
             emailjs.init({
@@ -217,9 +226,8 @@
             <label for="date-select">Válassz munkanapot:</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-calendar-days"></i>
-                <select id="date-select" required>
-                    <option value="">-- Válassz egy szabad munkanapot --</option>
-                </select>
+                <!-- Itt cseréltük a selectet egy szövegmezőre a naptárhoz -->
+                <input type="text" id="date-select" placeholder="Kattints a dátum kiválasztásához..." readonly required>
             </div>
         </div>
         
@@ -262,8 +270,10 @@
             </div>
         </div>
         
-        <button class="submit-btn" id="book-btn">Időpont Lefoglalása</button>
-        <div id="message"></div>
+        <button class="submit-btn" id="book-btn">
+            <i class="fa-solid fa-paper-plane" id="btn-icon"></i> 
+            <span id="btn-text">Időpont Lefoglalása</span>
+        </button>
     </div>
 
     <script>
@@ -281,31 +291,37 @@
         const container = document.getElementById('main-container');
         let selectedTime = null;
 
-        function isWorkDay(dateString) {
-            const date = new Date(dateString);
-            const day = date.getDay();
-            if (holidays.includes(dateString)) return false;
-            if (workingSaturdays.includes(dateString)) return true;
-            if (day === 0 || day === 6) return false; 
-            return true;
-        }
-
-        function populateWorkDays() {
-            const today = new Date();
-            const options = { weekday: 'long', year: 'numeric', month: '2-digit', day: '2-digit' };
-            for (let i = 0; i < 30; i++) {
-                const d = new Date(today);
-                d.setDate(today.getDate() + i);
-                const dateString = d.toLocaleDateString('en-CA');
-                if (isWorkDay(dateString)) {
-                    const formattedDate = d.toLocaleDateString('hu-HU', options);
-                    const option = document.createElement('option');
-                    option.value = dateString;
-                    option.textContent = `${dateString} (${formattedDate})`;
-                    dateSelect.appendChild(option);
+        // FLATPICKR NAPTÁR INICIALIZÁLÁSA
+        flatpickr("#date-select", {
+            locale: "hu",
+            minDate: "today",
+            dateFormat: "Y-m-d",
+            disable: [
+                function(date) {
+                    const dateString = date.toLocaleDateString('en-CA');
+                    const day = date.getDay();
+                    
+                    // Ünnepnapok blokkolása
+                    if (holidays.includes(dateString)) return true;
+                    // Ledolgozós szombat engedélyezése
+                    if (workingSaturdays.includes(dateString)) return false;
+                    // Hétvégék blokkolása (Vasárnap = 0, Szombat = 6)
+                    return (day === 0 || day === 6);
+                }
+            ],
+            onChange: function(selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    timeSection.style.display = 'block';
+                    timeSection.classList.remove('slide-down-anim');
+                    void timeSection.offsetWidth;
+                    timeSection.classList.add('slide-down-anim');
+                    
+                    generateSlots();
+                    selectedTime = null;
+                    customTimeInput.value = '';
                 }
             }
-        }
+        });
 
         function generateSlots() {
             slotsContainer.innerHTML = '';
@@ -335,31 +351,14 @@
             }
         });
 
-        dateSelect.addEventListener('change', (e) => {
-            if (e.target.value) {
-                timeSection.style.display = 'block';
-                // Animáció újraindítása
-                timeSection.classList.remove('slide-down-anim');
-                void timeSection.offsetWidth;
-                timeSection.classList.add('slide-down-anim');
-                
-                generateSlots();
-                selectedTime = null;
-                customTimeInput.value = '';
-            } else {
-                timeSection.style.display = 'none';
-                selectedTime = null;
-                customTimeInput.value = '';
-            }
-        });
-
         document.getElementById('book-btn').addEventListener('click', () => {
             const name = document.getElementById('name').value;
             const date = dateSelect.value;
             const duration = document.getElementById('duration').value;
             const customTime = customTimeInput.value.trim();
-            const msg = document.getElementById('message');
             const btn = document.getElementById('book-btn');
+            const btnIcon = document.getElementById('btn-icon');
+            const btnText = document.getElementById('btn-text');
 
             let finalTimeStr = "";
             if (customTime !== "") {
@@ -368,21 +367,27 @@
                 finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
             }
 
+            // Hiba kezelés rázkódással és hiba popuppal
             if (!date || !name || finalTimeStr === "") {
-                msg.textContent = "Kérlek tölts ki minden mezőt a foglaláshoz!";
-                msg.style.color = "#ef4444";
-                msg.style.backgroundColor = "transparent";
-                
                 container.classList.remove('error-shake');
                 void container.offsetWidth;
                 container.classList.add('error-shake');
                 
+                Swal.fire({
+                    title: 'Hiányzó adatok!',
+                    text: 'Kérlek válassz dátumot, időpontot és add meg a neved a foglaláshoz!',
+                    icon: 'warning',
+                    background: '#1e293b',
+                    color: '#f8fafc',
+                    confirmButtonColor: '#38bdf8'
+                });
                 return;
             }
 
+            // Gomb átállítása "Töltés" módba
             btn.disabled = true;
-            btn.textContent = "KÜLDÉS FOLYAMATBAN...";
-            msg.textContent = "";
+            btnIcon.className = "fa-solid fa-spinner fa-spin";
+            btnText.textContent = "KÜLDÉS FOLYAMATBAN...";
 
             const templateParams = {
                 name: name,
@@ -392,26 +397,46 @@
 
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
                 .then(function(response) {
-                    msg.textContent = `Sikeres foglalás rögzítve: ${name} részére.`;
-                    msg.style.color = "#0f172a";
-                    msg.style.backgroundColor = "#22c55e";
+                    // Siker Popup (SweetAlert2)
+                    Swal.fire({
+                        title: 'Sikeres Foglalás!',
+                        text: `Várom szeretettel: ${name}`,
+                        icon: 'success',
+                        background: '#1e293b',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#22c55e'
+                    });
                     
+                    // Mezők nullázása
                     document.getElementById('name').value = '';
                     dateSelect.value = '';
                     timeSection.style.display = 'none';
                     selectedTime = null;
                     customTimeInput.value = '';
+                    
+                    // Gomb visszaállítása
                     btn.disabled = false;
-                    btn.textContent = "IDŐPONT LEFOGLALÁSA";
+                    btnIcon.className = "fa-solid fa-paper-plane";
+                    btnText.textContent = "IDŐPONT LEFOGLALÁSA";
+                    
                 }, function(error) {
-                    msg.textContent = "Hiba történt a küldés során. Próbáld újra!";
-                    msg.style.color = "#ef4444";
+                    // Hiba Popup
+                    Swal.fire({
+                        title: 'Hiba történt!',
+                        text: 'Sajnos nem sikerült elküldeni a foglalást. Kérlek próbáld újra!',
+                        icon: 'error',
+                        background: '#1e293b',
+                        color: '#f8fafc',
+                        confirmButtonColor: '#ef4444'
+                    });
+                    
+                    // Gomb visszaállítása
                     btn.disabled = false;
-                    btn.textContent = "IDŐPONT LEFOGLALÁSA";
+                    btnIcon.className = "fa-solid fa-paper-plane";
+                    btnText.textContent = "IDŐPONT LEFOGLALÁSA";
                 });
         });
 
-        populateWorkDays();
     </script>
 </body>
 </html>
