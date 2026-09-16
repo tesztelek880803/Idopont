@@ -1,4 +1,4 @@
-html_code = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="hu">
 <head>
     <meta charset="UTF-8">
@@ -148,7 +148,6 @@ html_code = """<!DOCTYPE html>
                 time: selectedTime
             };
 
-            // BEILLESZTETT SERVICE ID ÉS TEMPLATE ID
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
                 .then(function(response) {
                     msg.textContent = `Sikeres foglalás rögzítve: ${name} részére (${date} - ${selectedTime})`;
@@ -173,7 +172,4 @@ html_code = """<!DOCTYPE html>
         populateWorkDays();
     </script>
 </body>
-</html>"""
-with open('idopontfoglalo.html', 'w', encoding='utf-8') as f:
-    f.write(html_code)
-print("Fájl sikeresen frissítve a Public Key-jel.")
+</html>
