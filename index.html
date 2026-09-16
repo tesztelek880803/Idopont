@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <style>
-        /* Modern IT háttérkép sötétítő réteggel */
         body { 
             font-family: 'Poppins', sans-serif; 
             background-color: #0f172a;
@@ -39,13 +38,11 @@
             box-sizing: border-box;
         }
         
-        /* BEÚSZÓ ANIMÁCIÓ */
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Lebegő, tejüveg effektű fődoboz */
         .container { 
             background: rgba(30, 41, 59, 0.7); 
             backdrop-filter: blur(12px); 
@@ -62,7 +59,6 @@
             animation: fadeInUp 0.7s ease-out forwards; 
         }
         
-        /* Hiba esetén rázkódó animáció */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             20%, 60% { transform: translateX(-5px); }
@@ -83,21 +79,28 @@
         .form-group { margin-bottom: 25px; }
         label { display: block; margin-bottom: 10px; font-weight: 600; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; }
         
-        /* Ikonok elhelyezése a beviteli mezőkben */
         .input-wrapper { position: relative; }
         .input-wrapper i {
             position: absolute;
             left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 20px; /* Kicsit lejjebb igazítva a textarea miatt is */
             color: #38bdf8;
             font-size: 16px;
             pointer-events: none; 
             transition: color 0.3s ease;
         }
+        /* Ha sima input vagy select, középre vesszük az ikont függőlegesen */
+        .input-wrapper input:not(textarea), .input-wrapper select {
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        /* Specifikusan a textarea ikonja */
+        .input-wrapper textarea + i {
+            top: 16px;
+            transform: none;
+        }
         
-        /* Bemeneti mezők effektekkel */
-        select, input[type="text"] { 
+        select, input[type="text"], textarea { 
             font-family: 'Poppins', sans-serif;
             width: 100%; 
             padding: 14px 14px 14px 45px; 
@@ -109,32 +112,34 @@
             box-sizing: border-box;
             transition: all 0.3s ease;
             font-size: 15px;
-            appearance: none; 
-            cursor: pointer;
         }
-        
+
         select {
+            appearance: none;
+            cursor: pointer;
             background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%2394a3b8%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
             background-repeat: no-repeat;
             background-position: right 15px top 50%;
             background-size: 12px auto;
         }
 
-        select:focus, input:focus { 
+        textarea {
+            resize: vertical;
+            min-height: 90px;
+        }
+
+        select:focus, input:focus, textarea:focus { 
             border-color: #38bdf8; 
             box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
             background: rgba(21, 34, 56, 0.9);
         }
-        select:focus + i, input:focus + i { color: #fff; } 
         
-        /* HARMONIKA ANIMÁCIÓ */
         @keyframes slideDownFade {
             from { opacity: 0; transform: translateY(-15px); }
             to { opacity: 1; transform: translateY(0); }
         }
         .slide-down-anim { animation: slideDownFade 0.4s ease-out forwards; }
 
-        /* Időpont gombok */
         .slots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
         .slot { 
             background: rgba(51, 65, 85, 0.8); 
@@ -158,13 +163,11 @@
             box-shadow: 0 5px 15px rgba(56, 189, 248, 0.4);
         }
         
-        /* Elválasztó vonal */
         .or-divider { text-align: center; margin: 30px 0; color: #94a3b8; font-weight: 600; position: relative; font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px;}
         .or-divider::before, .or-divider::after { content: ""; position: absolute; top: 50%; width: 35%; height: 1px; background: #475569; }
         .or-divider::before { left: 0; }
         .or-divider::after { right: 0; }
         
-        /* Küldés gomb */
         button.submit-btn { 
             font-family: 'Poppins', sans-serif;
             width: 100%; 
@@ -196,7 +199,6 @@
         }
         button.submit-btn:disabled { background: #64748b; cursor: not-allowed; transform: none; box-shadow: none; color: #94a3b8;}
         
-        /* Mobilos reszponzivitás */
         @media (max-width: 600px) {
             .container { padding: 30px 20px; }
             .slots { grid-template-columns: repeat(2, 1fr); } 
@@ -204,7 +206,7 @@
         }
     </style>
     
-    <!-- EMAILJS, FLATPICKR ÉS SWEETALERT2 SCRIPT BEIMPORTÁLÁSA -->
+    <!-- SCRIPT BEIMPORTÁLÁSOK -->
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <script src="https://npmcdn.com/flatpickr/dist/l10n/hu.js"></script>
@@ -226,7 +228,6 @@
             <label for="date-select">Válassz munkanapot:</label>
             <div class="input-wrapper">
                 <i class="fa-solid fa-calendar-days"></i>
-                <!-- Itt cseréltük a selectet egy szövegmezőre a naptárhoz -->
                 <input type="text" id="date-select" placeholder="Kattints a dátum kiválasztásához..." readonly required>
             </div>
         </div>
@@ -269,6 +270,15 @@
                 <input type="text" id="name" placeholder="Pl.: Kovács János" required>
             </div>
         </div>
+
+        <!-- ÚJ PROBLÉMA LEÍRÁSA MEZŐ -->
+        <div class="form-group">
+            <label for="problem">A probléma rövid leírása:</label>
+            <div class="input-wrapper">
+                <i class="fa-solid fa-wrench"></i>
+                <textarea id="problem" placeholder="Írd le röviden, mi a hiba vagy milyen szolgáltatásra van szükséged..." required></textarea>
+            </div>
+        </div>
         
         <button class="submit-btn" id="book-btn">
             <i class="fa-solid fa-paper-plane" id="btn-icon"></i> 
@@ -291,7 +301,6 @@
         const container = document.getElementById('main-container');
         let selectedTime = null;
 
-        // FLATPICKR NAPTÁR INICIALIZÁLÁSA
         flatpickr("#date-select", {
             locale: "hu",
             minDate: "today",
@@ -300,12 +309,8 @@
                 function(date) {
                     const dateString = date.toLocaleDateString('en-CA');
                     const day = date.getDay();
-                    
-                    // Ünnepnapok blokkolása
                     if (holidays.includes(dateString)) return true;
-                    // Ledolgozós szombat engedélyezése
                     if (workingSaturdays.includes(dateString)) return false;
-                    // Hétvégék blokkolása (Vasárnap = 0, Szombat = 6)
                     return (day === 0 || day === 6);
                 }
             ],
@@ -356,6 +361,7 @@
             const date = dateSelect.value;
             const duration = document.getElementById('duration').value;
             const customTime = customTimeInput.value.trim();
+            const problem = document.getElementById('problem').value.trim();
             const btn = document.getElementById('book-btn');
             const btnIcon = document.getElementById('btn-icon');
             const btnText = document.getElementById('btn-text');
@@ -367,15 +373,15 @@
                 finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
             }
 
-            // Hiba kezelés rázkódással és hiba popuppal
-            if (!date || !name || finalTimeStr === "") {
+            // Validáció, hogy minden mező ki legyen töltve (beleértve a problémát is)
+            if (!date || !name || finalTimeStr === "" || !problem) {
                 container.classList.remove('error-shake');
                 void container.offsetWidth;
                 container.classList.add('error-shake');
                 
                 Swal.fire({
                     title: 'Hiányzó adatok!',
-                    text: 'Kérlek válassz dátumot, időpontot és add meg a neved a foglaláshoz!',
+                    text: 'Kérlek tölts ki minden mezőt (beleértve a probléma leírását is)!',
                     icon: 'warning',
                     background: '#1e293b',
                     color: '#f8fafc',
@@ -384,7 +390,6 @@
                 return;
             }
 
-            // Gomb átállítása "Töltés" módba
             btn.disabled = true;
             btnIcon.className = "fa-solid fa-spinner fa-spin";
             btnText.textContent = "KÜLDÉS FOLYAMATBAN...";
@@ -392,12 +397,12 @@
             const templateParams = {
                 name: name,
                 date: date,
-                time: finalTimeStr
+                time: finalTimeStr,
+                problem: problem // Átadjuk az EmailJS sablonnak is
             };
 
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
                 .then(function(response) {
-                    // Siker Popup (SweetAlert2)
                     Swal.fire({
                         title: 'Sikeres Foglalás!',
                         text: `Várom szeretettel: ${name}`,
@@ -407,20 +412,18 @@
                         confirmButtonColor: '#22c55e'
                     });
                     
-                    // Mezők nullázása
                     document.getElementById('name').value = '';
                     dateSelect.value = '';
+                    document.getElementById('problem').value = '';
                     timeSection.style.display = 'none';
                     selectedTime = null;
                     customTimeInput.value = '';
                     
-                    // Gomb visszaállítása
                     btn.disabled = false;
                     btnIcon.className = "fa-solid fa-paper-plane";
                     btnText.textContent = "IDŐPONT LEFOGLALÁSA";
                     
                 }, function(error) {
-                    // Hiba Popup
                     Swal.fire({
                         title: 'Hiba történt!',
                         text: 'Sajnos nem sikerült elküldeni a foglalást. Kérlek próbáld újra!',
@@ -430,13 +433,11 @@
                         confirmButtonColor: '#ef4444'
                     });
                     
-                    // Gomb visszaállítása
                     btn.disabled = false;
                     btnIcon.className = "fa-solid fa-paper-plane";
                     btnText.textContent = "IDŐPONT LEFOGLALÁSA";
                 });
         });
-
     </script>
 </body>
 </html>
