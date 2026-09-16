@@ -77,26 +77,37 @@
         }
         
         .form-group { margin-bottom: 25px; }
-        label { display: block; margin-bottom: 10px; font-weight: 600; color: #94a3b8; font-size: 13px; text-transform: uppercase; letter-spacing: 0.8px; }
         
-        .input-wrapper { position: relative; }
+        /* Címkék (Label) javítva, hogy rendesen fent legyenek */
+        label { 
+            display: block; 
+            margin-bottom: 8px; 
+            font-weight: 600; 
+            color: #94a3b8; 
+            font-size: 13px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.8px; 
+        }
+        
+        /* Ikonok és beviteli mezők konténere */
+        .input-wrapper { position: relative; width: 100%; }
+        
+        /* Ikonok fix pozíciója a dobozon belül */
         .input-wrapper i {
             position: absolute;
             left: 15px;
-            top: 20px; /* Kicsit lejjebb igazítva a textarea miatt is */
+            top: 50%;
+            transform: translateY(-50%);
             color: #38bdf8;
             font-size: 16px;
             pointer-events: none; 
             transition: color 0.3s ease;
+            z-index: 2;
         }
-        /* Ha sima input vagy select, középre vesszük az ikont függőlegesen */
-        .input-wrapper input:not(textarea), .input-wrapper select {
-            top: 50%;
-            transform: translateY(-50%);
-        }
-        /* Specifikusan a textarea ikonja */
-        .input-wrapper textarea + i {
-            top: 16px;
+
+        /* A textarea ikonja kicsit feljebb kell, hogy ne az alján legyen */
+        .input-wrapper.textarea-wrapper i {
+            top: 20px;
             transform: none;
         }
         
@@ -271,10 +282,9 @@
             </div>
         </div>
 
-        <!-- ÚJ PROBLÉMA LEÍRÁSA MEZŐ -->
         <div class="form-group">
             <label for="problem">A probléma rövid leírása:</label>
-            <div class="input-wrapper">
+            <div class="input-wrapper textarea-wrapper">
                 <i class="fa-solid fa-wrench"></i>
                 <textarea id="problem" placeholder="Írd le röviden, mi a hiba vagy milyen szolgáltatásra van szükséged..." required></textarea>
             </div>
@@ -373,7 +383,6 @@
                 finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
             }
 
-            // Validáció, hogy minden mező ki legyen töltve (beleértve a problémát is)
             if (!date || !name || finalTimeStr === "" || !problem) {
                 container.classList.remove('error-shake');
                 void container.offsetWidth;
@@ -398,7 +407,7 @@
                 name: name,
                 date: date,
                 time: finalTimeStr,
-                problem: problem // Átadjuk az EmailJS sablonnak is
+                problem: problem
             };
 
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
