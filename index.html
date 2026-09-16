@@ -19,6 +19,10 @@
         button.submit-btn:hover { background: #0ea5e9; }
         button.submit-btn:disabled { background: #64748b; cursor: not-allowed; }
         #message { margin-top: 20px; text-align: center; font-weight: bold; padding: 10px; border-radius: 6px; }
+        .or-divider { text-align: center; margin: 25px 0; color: #64748b; font-weight: bold; position: relative; font-size: 14px; }
+        .or-divider::before, .or-divider::after { content: ""; position: absolute; top: 50%; width: 40%; height: 1px; background: #334155; }
+        .or-divider::before { left: 0; }
+        .or-divider::after { right: 0; }
     </style>
     
     <!-- EMAILJS BEIMPORTÁLÁSA -->
@@ -42,9 +46,29 @@
             </select>
         </div>
         
-        <div class="form-group" id="time-container" style="display: none;">
-            <label>Válassz időpontot (06:00 - 18:00):</label>
-            <div class="slots" id="slots"></div>
+        <div id="dynamic-time-section" style="display: none;">
+            <div class="form-group">
+                <label>Válassz kezdési időpontot (06:00 - 18:00):</label>
+                <div class="slots" id="slots"></div>
+                
+                <label style="margin-top: 15px;" for="duration">Időtartam (minimum 30 perc):</label>
+                <select id="duration">
+                    <option value="30 perc">30 perc</option>
+                    <option value="1 óra">1 óra</option>
+                    <option value="1.5 óra">1.5 óra</option>
+                    <option value="2 óra">2 óra</option>
+                    <option value="3 óra">3 óra</option>
+                    <option value="4 óra">4 óra</option>
+                    <option value="Egész nap">Egész nap</option>
+                </select>
+            </div>
+
+            <div class="or-divider">VAGY</div>
+
+            <div class="form-group">
+                <label for="custom-time">Egyedi időintervallum kézi megadása:</label>
+                <input type="text" id="custom-time" placeholder="Pl.: 08:15 - 10:45 vagy 'Csak délután'">
+            </div>
         </div>
 
         <div class="form-group">
@@ -66,7 +90,8 @@
 
         const dateSelect = document.getElementById('date-select');
         const slotsContainer = document.getElementById('slots');
-        const timeContainer = document.getElementById('time-container');
+        const timeSection = document.getElementById('dynamic-time-section');
+        const customTimeInput = document.getElementById('custom-time');
         let selectedTime = null;
 
         function isWorkDay(dateString) {
@@ -113,27 +138,48 @@
             document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
             element.classList.add('selected');
             selectedTime = time;
+            // Ha gombra kattint, töröljük a kézi szövegdobozt
+            customTimeInput.value = '';
         }
+
+        // Ha elkezd gépelni a kézi dobozba, töröljük a gombos választást
+        customTimeInput.addEventListener('input', () => {
+            if(customTimeInput.value.trim() !== '') {
+                document.querySelectorAll('.slot').forEach(s => s.classList.remove('selected'));
+                selectedTime = null;
+            }
+        });
 
         dateSelect.addEventListener('change', (e) => {
             if (e.target.value) {
-                timeContainer.style.display = 'block';
+                timeSection.style.display = 'block';
                 generateSlots();
                 selectedTime = null;
+                customTimeInput.value = '';
             } else {
-                timeContainer.style.display = 'none';
+                timeSection.style.display = 'none';
                 selectedTime = null;
+                customTimeInput.value = '';
             }
         });
 
         document.getElementById('book-btn').addEventListener('click', () => {
             const name = document.getElementById('name').value;
             const date = dateSelect.value;
+            const duration = document.getElementById('duration').value;
+            const customTime = customTimeInput.value.trim();
             const msg = document.getElementById('message');
             const btn = document.getElementById('book-btn');
 
-            if (!date || !name || !selectedTime) {
-                msg.textContent = "Kérlek válassz dátumot, időpontot és add meg a neved!";
+            let finalTimeStr = "";
+            if (customTime !== "") {
+                finalTimeStr = customTime + " (Kézzel megadva)";
+            } else if (selectedTime) {
+                finalTimeStr = selectedTime + " (Időtartam: " + duration + ")";
+            }
+
+            if (!date || !name || finalTimeStr === "") {
+                msg.textContent = "Kérlek válassz dátumot, időpontot (vagy adj meg egyedit) és add meg a neved!";
                 msg.style.color = "#ef4444";
                 return;
             }
@@ -145,19 +191,20 @@
             const templateParams = {
                 name: name,
                 date: date,
-                time: selectedTime
+                time: finalTimeStr
             };
 
             emailjs.send('service_buq6g7d', 'template_cuctmh5', templateParams)
                 .then(function(response) {
-                    msg.textContent = `Sikeres foglalás rögzítve: ${name} részére (${date} - ${selectedTime})`;
+                    msg.textContent = `Sikeres foglalás rögzítve: ${name} részére.`;
                     msg.style.color = "#0f172a";
                     msg.style.backgroundColor = "#22c55e";
                     
                     document.getElementById('name').value = '';
                     dateSelect.value = '';
-                    timeContainer.style.display = 'none';
+                    timeSection.style.display = 'none';
                     selectedTime = null;
+                    customTimeInput.value = '';
                     btn.disabled = false;
                     btn.textContent = "Időpont Lefoglalása";
                 }, function(error) {
@@ -165,7 +212,6 @@
                     msg.style.color = "#ef4444";
                     btn.disabled = false;
                     btn.textContent = "Időpont Lefoglalása";
-                    console.log('FAILED...', error);
                 });
         });
 
