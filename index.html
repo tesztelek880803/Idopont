@@ -78,7 +78,6 @@
         
         .form-group { margin-bottom: 25px; }
         
-        /* Címkék (Label) javítva, hogy rendesen fent legyenek */
         label { 
             display: block; 
             margin-bottom: 8px; 
@@ -89,10 +88,8 @@
             letter-spacing: 0.8px; 
         }
         
-        /* Ikonok és beviteli mezők konténere */
         .input-wrapper { position: relative; width: 100%; }
         
-        /* Ikonok fix pozíciója a dobozon belül */
         .input-wrapper i {
             position: absolute;
             left: 15px;
@@ -105,7 +102,6 @@
             z-index: 2;
         }
 
-        /* A textarea ikonja kicsit feljebb kell, hogy ne az alján legyen */
         .input-wrapper.textarea-wrapper i {
             top: 20px;
             transform: none;
@@ -297,11 +293,21 @@
     </div>
 
     <script>
-        const holidays = [
-            '2026-01-01', '2026-03-15', '2026-04-03', '2026-04-06',
-            '2026-05-01', '2026-05-25', '2026-08-20', '2026-10-23',
-            '2026-11-01', '2026-12-24', '2026-12-25', '2026-12-26'
-        ];
+        // Ünnepnapok nevekkel együtt
+        const holidays = {
+            '2026-01-01': 'Újév',
+            '2026-03-15': 'Nemzeti ünnep (1848-as szabadságharc)',
+            '2026-04-03': 'Nagypéntek',
+            '2026-04-06': 'Húsvéthétfő',
+            '2026-05-01': 'A munka ünnepe',
+            '2026-05-25': 'Pünkösdhétfő',
+            '2026-08-20': 'Az államalapítás ünnepe',
+            '2026-10-23': '1956-os forradalom ünnepe',
+            '2026-11-01': 'Mindenszentek',
+            '2026-12-24': 'Szenteste',
+            '2026-12-25': 'Karácsony',
+            '2026-12-26': 'Karácsony másnapja'
+        };
         const workingSaturdays = ['2026-08-08', '2026-12-12'];
 
         const dateSelect = document.getElementById('date-select');
@@ -319,11 +325,18 @@
                 function(date) {
                     const dateString = date.toLocaleDateString('en-CA');
                     const day = date.getDay();
-                    if (holidays.includes(dateString)) return true;
+                    if (holidays.hasOwnProperty(dateString)) return true;
                     if (workingSaturdays.includes(dateString)) return false;
                     return (day === 0 || day === 6);
                 }
             ],
+            // Ez a rész adja rá az ünnep nevét a naptári napra tooltipként
+            onDayCreate: function(dObj, dStr, fp, dayElem) {
+                const dateString = dayElem.dateObj.toLocaleDateString('en-CA');
+                if (holidays.hasOwnProperty(dateString)) {
+                    dayElem.title = holidays[dateString];
+                }
+            },
             onChange: function(selectedDates, dateStr, instance) {
                 if (dateStr) {
                     timeSection.style.display = 'block';
@@ -414,7 +427,7 @@
                 .then(function(response) {
                     Swal.fire({
                         title: 'Sikeres Foglalás!',
-                        text: `Várunk szeretettel: ${name}`,
+                        text: `Várom szeretettel: ${name}`,
                         icon: 'success',
                         background: '#1e293b',
                         color: '#f8fafc',
